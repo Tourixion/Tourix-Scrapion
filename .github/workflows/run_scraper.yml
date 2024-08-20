@@ -1,0 +1,51 @@
+name: Run Scraper
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for running the workflow'
+        required: false
+        default: 'Manual trigger'
+
+jobs:
+  run-scraper:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install Chrome
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Run scraper script
+      env:
+        LC_USERNAME: ${{ secrets.LC_USERNAME }}
+        LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
+      run: python scrapy.py
+
+    - name: Upload downloaded files
+      uses: actions/upload-artifact@v2
+      with:
+        name: downloaded-files
+        path: /github/workspace/downloads
+
+    - name: Log manual trigger reason
+      if: github.event_name == 'workflow_dispatch'
+      run: echo "Workflow was manually triggered. Reason: ${{ github.event.inputs.reason }}"
