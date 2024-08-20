@@ -2,9 +2,11 @@ name: Test and Run Scraper
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       reason:
@@ -17,7 +19,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -48,4 +51,4 @@ jobs:
 
     - name: Log manual trigger reason
       if: github.event_name == 'workflow_dispatch'
-      run: echo "Workflow was manually triggered. Reason: ${{ github.event.inputs.reason || 'No reason provided' }}"
+      run: echo "Workflow was manually triggered. Reason - ${{ github.event.inputs.reason || 'No reason provided' }}"
