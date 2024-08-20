@@ -32,10 +32,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install Chrome
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
+    - name: Setup Chrome
+      uses: browser-actions/setup-chrome@latest
+      with:
+        chrome-version: stable
 
     - name: Run scraper script
       env:
@@ -48,6 +48,10 @@ jobs:
       with:
         name: downloaded-files
         path: /github/workspace/downloads
+
+    - name: Log manual trigger reason
+      if: github.event_name == 'workflow_dispatch'
+      run: echo "Workflow was manually triggered. Reason - ${{ github.event.inputs.reason || 'No reason provided' }}"
 
     - name: Log manual trigger reason
       if: github.event_name == 'workflow_dispatch'
