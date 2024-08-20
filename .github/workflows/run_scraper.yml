@@ -1,4 +1,4 @@
-name: Test Scrapy Script
+name: Run Scraper
 
 on:
   push:
@@ -13,7 +13,7 @@ on:
         default: 'Manual trigger'
 
 jobs:
-  test:
+  run-scraper:
     runs-on: ubuntu-latest
 
     steps:
