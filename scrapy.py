@@ -1,7 +1,6 @@
 import os
 import logging
 import time
-import subprocess
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service as ChromeService
@@ -12,23 +11,10 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.utils import ChromeType
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-def get_chrome_version():
-    try:
-        process = subprocess.Popen(['google-chrome', '--version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = process.communicate()
-        if error:
-            logger.error(f"Error getting Chrome version: {error.decode('utf-8')}")
-            return None
-        version = output.decode('utf-8').split()[-1]
-        logger.info(f"Detected Chrome version: {version}")
-        return version
-    except Exception as e:
-        logger.error(f"Failed to get Chrome version: {str(e)}")
-        return None
 
 def wait_and_click(driver, selector, by=By.CSS_SELECTOR, timeout=10):
     try:
@@ -60,13 +46,8 @@ def login_and_scrape(url, email, password):
         "safebrowsing.enabled": True
     })
     
-    chrome_version = get_chrome_version()
-    if chrome_version:
-        service = ChromeService(ChromeDriverManager(version=chrome_version).install())
-    else:
-        logger.warning("Unable to detect Chrome version. Using default ChromeDriver.")
-        service = ChromeService(ChromeDriverManager().install())
-    
+    # Use the latest stable version of ChromeDriver
+    service = ChromeService(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
     try:
