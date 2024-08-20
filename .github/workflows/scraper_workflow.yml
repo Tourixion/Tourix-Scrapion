@@ -29,13 +29,8 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install specific Chrome version
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y wget
-        wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_114.0.5735.90-1_amd64.deb
-        sudo dpkg -i google-chrome-stable_114.0.5735.90-1_amd64.deb
-        google-chrome --version
+    - name: Check Chrome version
+      run: google-chrome --version
 
     - name: Run scraper script
       env:
