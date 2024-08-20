@@ -1,12 +1,10 @@
-name: Test and Run Scraper
+name: Run Scraper
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
   workflow_dispatch:
     inputs:
       reason:
@@ -15,12 +13,11 @@ on:
         default: 'Manual trigger'
 
 jobs:
-  test-and-run:
+  run-scraper:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -32,10 +29,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Setup Chrome
-      uses: browser-actions/setup-chrome@latest
-      with:
-        chrome-version: stable
+    - name: Install specific Chrome version
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget
+        wget https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_114.0.5735.90-1_amd64.deb
+        sudo dpkg -i google-chrome-stable_114.0.5735.90-1_amd64.deb
+        google-chrome --version
 
     - name: Run scraper script
       env:
@@ -48,10 +48,6 @@ jobs:
       with:
         name: downloaded-files
         path: /github/workspace/downloads
-
-    - name: Log manual trigger reason
-      if: github.event_name == 'workflow_dispatch'
-      run: echo "Workflow was manually triggered. Reason - ${{ github.event.inputs.reason || 'No reason provided' }}"
 
     - name: Log manual trigger reason
       if: github.event_name == 'workflow_dispatch'
