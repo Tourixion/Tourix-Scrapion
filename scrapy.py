@@ -47,6 +47,7 @@ def login_and_scrape(url, email, password):
     })
     
     # Use the latest stable version of ChromeDriver
+    driver_version = "114.0.5735.90"
     service = ChromeService(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
