@@ -29,9 +29,22 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run tests
+    - name: Install Chrome
       run: |
-        python -m unittest discover tests
+        sudo apt-get update
+        sudo apt-get install -y google-chrome-stable
+
+    - name: Run scraper script
+      env:
+        LC_USERNAME: ${{ secrets.LC_USERNAME }}
+        LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
+      run: python scrapy.py
+
+    - name: Upload downloaded files
+      uses: actions/upload-artifact@v2
+      with:
+        name: downloaded-files
+        path: /github/workspace/downloads
 
     - name: Log manual trigger reason
       if: github.event_name == 'workflow_dispatch'
