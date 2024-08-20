@@ -11,9 +11,13 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException,
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.core.utils import read_version_from_cmd, PATTERN
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+def get_chrome_version():
+    return read_version_from_cmd('google-chrome --version', PATTERN['chrome'])
 
 def wait_and_click(driver, selector, by=By.CSS_SELECTOR, timeout=10):
     try:
@@ -45,7 +49,9 @@ def login_and_scrape(url, email, password):
         "safebrowsing.enabled": True
     })
     
-    service = ChromeService(ChromeDriverManager().install())
+    chrome_version = get_chrome_version()
+    logger.info(f"Detected Chrome version: {chrome_version}")
+    service = ChromeService(ChromeDriverManager(version=chrome_version).install())
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
     try:
