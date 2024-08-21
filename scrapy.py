@@ -65,8 +65,8 @@ def login_and_scrape(url, email, password):
         WebDriverWait(driver, 20).until(EC.url_changes(url))
         logger.info(f"Page changed after login. New URL: {driver.current_url}")
 
-         # Ensure the element is present in the DOM
-         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn")))
+        # Ensure the element is present in the DOM
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn")))
 
         # Wait for the element to be clickable and then click it
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn"))).click()
