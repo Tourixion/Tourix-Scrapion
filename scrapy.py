@@ -10,7 +10,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager.firefox import GeckoDriverManager
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -41,7 +40,7 @@ def login_and_scrape(url, email, password):
     firefox_options.set_preference("browser.download.dir", "/github/workspace/downloads")
     firefox_options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream,application/vnd.ms-excel")
     
-    service = FirefoxService(GeckoDriverManager().install())
+    service = FirefoxService('geckodriver')
     driver = webdriver.Firefox(service=service, options=firefox_options)
     
     try:
@@ -60,6 +59,7 @@ def login_and_scrape(url, email, password):
         login_button = driver.find_element(By.CSS_SELECTOR, ".ant-btn")
         login_button.click()
         logger.info("Clicked login button")
+
 
         # Wait for the page to change after login
         WebDriverWait(driver, 20).until(EC.url_changes(url))
