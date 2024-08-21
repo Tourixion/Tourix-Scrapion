@@ -54,4 +54,4 @@ jobs:
 
     - name: Log manual trigger reason
       if: github.event_name == 'workflow_dispatch'
-      run: echo "Workflow was manually triggered. Reason - ${{ github.event.inputs.reason 
+      run: echo "Workflow was manually triggered. Reason - ${{ github.event.inputs.reason || 'No reason provided' }}"
