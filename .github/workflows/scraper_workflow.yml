@@ -29,13 +29,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Install Firefox
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y firefox
+    - name: Setup Firefox
+      uses: browser-actions/setup-firefox@latest
 
-    - name: Check Firefox version
-      run: firefox --version
+    - name: Setup GeckoDriver
+      uses: browser-actions/setup-geckodriver@latest
+
+    - name: Check Firefox and GeckoDriver versions
+      run: |
+        firefox --version
+        geckodriver --version
 
     - name: Run scraper script
       env:
@@ -51,4 +54,4 @@ jobs:
 
     - name: Log manual trigger reason
       if: github.event_name == 'workflow_dispatch'
-      run: echo "Workflow was manually triggered. Reason - ${{ github.event.inputs.reason || 'No reason provided' }}"
+      run: echo "Workflow was manually triggered. Reason - ${{ github.event.inputs.reason 
