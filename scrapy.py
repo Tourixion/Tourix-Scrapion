@@ -35,39 +35,14 @@ def login_and_scrape(url, email, password):
     firefox_options = FirefoxOptions()
     firefox_options.add_argument("--headless")
     
-    # Set up Firefox profile for downloads
-    firefox_profile = webdriver.FirefoxProfile()
-    firefox_profile.set_preference("browser.download.folderList", 2)
-    firefox_profile.set_preference("browser.download.manager.showWhenStarting", False)
-    firefox_profile.set_preference("browser.download.dir", "/github/workspace/downloads")
-    firefox_profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream,application/vnd.ms-excel")
-    
-    firefox_options.profile = firefox_profile
+    # Set up Firefox options for downloads
+    firefox_options.set_preference("browser.download.folderList", 2)
+    firefox_options.set_preference("browser.download.manager.showWhenStarting", False)
+    firefox_options.set_preference("browser.download.dir", "/github/workspace/downloads")
+    firefox_options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream,application/vnd.ms-excel")
     
     service = FirefoxService(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=firefox_options)
-    
-    try:
-        driver.get(url)
-        logger.info(f"Navigated to: {driver.current_url}")
-
-        # Login
-        email_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".ant-input:nth-child(2)")))
-        email_input.send_keys(email)
-        logger.info("Entered email")
-
-        password_input = driver.find_element(By.CSS_SELECTOR, ".ant-input:nth-child(1)")
-        password_input.send_keys(password)
-        logger.info("Entered password")
-
-        login_button = driver.find_element(By.CSS_SELECTOR, ".ant-btn")
-        login_button.click()
-        logger.info("Clicked login button")
-
-        # Wait for the page to change after login
-        WebDriverWait(driver, 20).until(EC.url_changes(url))
-        logger.info(f"Page changed after login. New URL: {driver.current_url}")
-        
     
     try:
         driver.get(url)
