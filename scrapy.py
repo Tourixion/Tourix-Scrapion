@@ -2,16 +2,15 @@ import os
 import logging
 import time
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchElementException, ElementClickInterceptedException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
-from webdriver_manager.core.utils import ChromeType
+from webdriver_manager.firefox import GeckoDriverManager
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -33,10 +32,41 @@ def wait_and_click(driver, selector, by=By.CSS_SELECTOR, timeout=10):
 def login_and_scrape(url, email, password):
     logger.info(f"Starting scraper for URL: {url}")
     
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
+    firefox_options = FirefoxOptions()
+    firefox_options.add_argument("--headless")
+    
+    # Set up Firefox profile for downloads
+    firefox_profile = webdriver.FirefoxProfile()
+    firefox_profile.set_preference("browser.download.folderList", 2)
+    firefox_profile.set_preference("browser.download.manager.showWhenStarting", False)
+    firefox_profile.set_preference("browser.download.dir", "/github/workspace/downloads")
+    firefox_profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/octet-stream,application/vnd.ms-excel")
+    
+    firefox_options.profile = firefox_profile
+    
+    service = FirefoxService(GeckoDriverManager().install())
+    driver = webdriver.Firefox(service=service, options=firefox_options)
+    
+    try:
+        driver.get(url)
+        logger.info(f"Navigated to: {driver.current_url}")
+
+        # Login
+        email_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".ant-input:nth-child(2)")))
+        email_input.send_keys(email)
+        logger.info("Entered email")
+
+        password_input = driver.find_element(By.CSS_SELECTOR, ".ant-input:nth-child(1)")
+        password_input.send_keys(password)
+        logger.info("Entered password")
+
+        login_button = driver.find_element(By.CSS_SELECTOR, ".ant-btn")
+        login_button.click()
+        logger.info("Clicked login button")
+
+        # Wait for the page to change after login
+        WebDriverWait(driver, 20).until(EC.url_changes(url))
+        logger.info(f"Page changed after login. New URL: {driver.current_url}")
     
     # Add these options to automatically download files
     chrome_options.add_experimental_option("prefs", {
