@@ -67,19 +67,7 @@ def login_and_scrape(url, email, password):
         # Wait for the page to change after login
         WebDriverWait(driver, 20).until(EC.url_changes(url))
         logger.info(f"Page changed after login. New URL: {driver.current_url}")
-    
-    # Add these options to automatically download files
-    chrome_options.add_experimental_option("prefs", {
-        "download.default_directory": "/github/workspace/downloads",  # Adjust this path for GitHub Actions
-        "download.prompt_for_download": False,
-        "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
-    })
-    
-    # Use the latest stable version of ChromeDriver
-    driver_version = "126.0.6478.244"
-    service = ChromeService(ChromeDriverManager(chrome_type=ChromeType.GOOGLE).install())
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+        
     
     try:
         driver.get(url)
