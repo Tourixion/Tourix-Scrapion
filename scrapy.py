@@ -60,7 +60,6 @@ def login_and_scrape(url, email, password):
         login_button.click()
         logger.info("Clicked login button")
 
-
         # Wait for the page to change after login
         WebDriverWait(driver, 20).until(EC.url_changes(url))
         logger.info(f"Page changed after login. New URL: {driver.current_url}")
@@ -69,8 +68,8 @@ def login_and_scrape(url, email, password):
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn")))
 
         # Wait for the element to be clickable and then click it
-        self.driver.get("https://app.localclarity.com/authorize")
-        self.driver.set_window_size(1061, 679)
+        driver.get("https://app.localclarity.com/authorize")
+        driver.set_window_size(1061, 679)
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn"))).click()
         logger.info("Clicked .profile-item:nth-child(1) .ant-btn element")
 
