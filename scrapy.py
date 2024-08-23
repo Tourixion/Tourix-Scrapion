@@ -90,7 +90,7 @@ def login_and_scrape(url, email, password):
         logger.info("Performed mouse over and out actions")
 
         # Click on date picker and select a tag
-        date_picker = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ant-calendar-range-picker-input:nth-child(3)")))
+        date_picker = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ant-calendar-range-picker-input:nth-child(2)")))
         date_picker.click()
         logger.info("Clicked date picker")
 
