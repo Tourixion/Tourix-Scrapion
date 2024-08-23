@@ -94,7 +94,7 @@ def login_and_scrape(url, email, password):
         date_picker.click()
         logger.info("Clicked date picker")
 
-        tag = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ant-tag:nth-child(3)")))
+        tag = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".ant-tag:nth-child(2)")))
         tag.click()
         logger.info("Selected tag")
 
