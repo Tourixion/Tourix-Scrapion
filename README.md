@@ -1,6 +1,6 @@
 Howdy, fellas. (This is in English because I enjoy it)
 
-Welcome to Tourixion, if you are reading this and you are not me. You are probably you. Joking Aside, this is a basic automation scraper using Selenium Scrapy is the doer and the workflow sets up how the actions work. 
+Welcome to Tourixion, if you are reading this and you are not me. You are probably you. Joking Aside, this is a basic automation scraper using Selenium. Scrapy is the doer and the workflow sets up how the actions work. 
 If you are reading this I am either // A) Introducing this to you, // or // B) Something has changed in the website we are getting data from.
 
 Normally I would have an SOP, I probably made one. Regardless since you are here, that simply means you are having issues.
