@@ -13,6 +13,8 @@ on:
         description: Reason for running the workflow
         required: false
         default: Manual trigger
+  schedule:
+    - cron: '0 6 * * 5'  # Runs at 06:00 UTC every Friday
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
