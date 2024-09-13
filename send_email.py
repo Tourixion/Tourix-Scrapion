@@ -67,6 +67,5 @@ if __name__ == "__main__":
         logger.error(f"Download directory does not exist: {download_dir}")
 
     send_email(subject, body, to_email, from_email, smtp_server, smtp_port, smtp_username, smtp_password, attachment_path)
-        logger.error(f"Download directory does not exist: {download_dir}")
 
     send_email(subject, body, to_email, from_email, smtp_server, smtp_port, smtp_username, smtp_password, attachment_path)
