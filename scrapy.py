@@ -1,8 +1,6 @@
 import os
 import logging
 import time
-import csv
-import json
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -28,18 +26,6 @@ def wait_and_click(driver, selector, by=By.CSS_SELECTOR, timeout=10):
     except Exception as e:
         logger.error(f"Failed to click element {selector}: {str(e)}")
         return False
-
-def csv_to_json(csv_file_path, json_file_path):
-    data = []
-    with open(csv_file_path, 'r', encoding='utf-8') as csvfile:
-        csvreader = csv.DictReader(csvfile)
-        for row in csvreader:
-            data.append(row)
-    
-    with open(json_file_path, 'w', encoding='utf-8') as jsonfile:
-        json.dump(data, jsonfile, ensure_ascii=False, indent=4)
-    
-    logger.info(f"Converted CSV to JSON: {json_file_path}")
 
 def login_and_scrape(url, email, password):
     logger.info(f"Starting scraper for URL: {url}")
@@ -115,10 +101,10 @@ def login_and_scrape(url, email, password):
         csv_files = [f for f in files if f.endswith('.csv')]
         
         if csv_files:
-            csv_file = os.path.join(download_dir, csv_files[0])
-            json_file = os.path.join(download_dir, "localclarity_data.json")
-            csv_to_json(csv_file, json_file)
-            logger.info(f"Converted {csv_files[0]} to localclarity_data.json")
+            old_file = os.path.join(download_dir, csv_files[0])
+            new_file = os.path.join(download_dir, "localclarity_data.csv")
+            os.rename(old_file, new_file)
+            logger.info(f"Renamed downloaded file from {csv_files[0]} to localclarity_data.csv")
         else:
             logger.error("No CSV file found in the download directory")
             raise Exception("Download failed: No CSV file found")
@@ -141,5 +127,3 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(f"Scraping failed: {str(e)}")
         exit(1)
-    password = os.environ.get('LC_PASSWORD')
-    login_and_scrape(login_url, username, password)
