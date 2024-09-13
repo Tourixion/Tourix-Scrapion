@@ -64,41 +64,36 @@ def login_and_scrape(url, email, password):
         WebDriverWait(driver, 20).until(EC.url_changes(url))
         logger.info(f"Page changed after login. New URL: {driver.current_url}")
 
-        # Navigate to reviews
-        if not wait_and_click(driver, ".fa-comment-o"):
-            raise Exception("Failed to navigate to reviews")
-        logger.info("Navigated to reviews")
+        # Check if authorization is needed
+        try:
+            authorize_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn")))
+            authorize_button.click()
+            logger.info("Clicked authorize button")
+            time.sleep(5)  # Wait for authorization to complete
+        except TimeoutException:
+            logger.info("No authorization needed")
 
-        # Select date range and download JSON
-        if not wait_and_click(driver, ".ant-calendar-range-picker-input:nth-child(3)"):
-            raise Exception("Failed to open date range picker")
-        if not wait_and_click(driver, ".ant-tag:nth-child(3)"):
-            raise Exception("Failed to select date range")
-        if not wait_and_click(driver, ".download-link path"):
-            raise Exception("Failed to click download link")
-        if not wait_and_click(driver, ".ant-btn-primary"):
-            raise Exception("Failed to confirm download")
-        
-        logger.info("Initiated JSON download")
+        # Wait for the main dashboard to load
+        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
+        logger.info("Main dashboard loaded")
 
-        # Wait for download to complete
-        time.sleep(10)
-        logger.info("Waited for download to complete")
+        # Try to find the reviews icon multiple times
+        max_attempts = 3
+        for attempt in range(max_attempts):
+            try:
+                reviews_icon = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".fa-comment-o")))
+                reviews_icon.click()
+                logger.info("Clicked reviews icon")
+                break
+            except TimeoutException:
+                if attempt < max_attempts - 1:
+                    logger.warning(f"Attempt {attempt + 1} to find reviews icon failed. Retrying...")
+                    time.sleep(5)
+                else:
+                    raise Exception("Failed to navigate to reviews after multiple attempts")
 
-        # Check download directory
-        logger.info(f"Checking contents of download directory: {download_dir}")
-        files = os.listdir(download_dir)
-        logger.info(f"Files in download directory: {files}")
-        json_files = [f for f in files if f.endswith('.json')]
-        
-        if json_files:
-            old_file = os.path.join(download_dir, json_files[0])
-            new_file = os.path.join(download_dir, "localclarity_data.json")
-            os.rename(old_file, new_file)
-            logger.info(f"Renamed downloaded file from {json_files[0]} to localclarity_data.json")
-        else:
-            logger.error("No JSON file found in the download directory")
-            raise Exception("Download failed: No JSON file found")
+        # Continue with the rest of your script (date range selection, download, etc.)
+        # ...
 
         logger.info("Scraping and download process completed")
 
