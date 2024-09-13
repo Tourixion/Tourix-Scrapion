@@ -26,7 +26,6 @@ def wait_and_click(driver, selector, by=By.CSS_SELECTOR, timeout=10):
     except Exception as e:
         logger.error(f"Failed to click element {selector}: {str(e)}")
         return False
-
 def login_and_scrape(url, email, password):
     logger.info(f"Starting scraper for URL: {url}")
     
@@ -66,7 +65,7 @@ def login_and_scrape(url, email, password):
 
         # Check if authorization is needed
         try:
-            authorize_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn")))
+            authorize_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".profile-item:nth-child(1) .ant-btn")))
             authorize_button.click()
             logger.info("Clicked authorize button")
             time.sleep(5)  # Wait for authorization to complete
@@ -92,8 +91,40 @@ def login_and_scrape(url, email, password):
                 else:
                     raise Exception("Failed to navigate to reviews after multiple attempts")
 
-        # Continue with the rest of your script (date range selection, download, etc.)
-        # ...
+        # Wait for reviews page to load
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".reviews-header")))
+        logger.info("Reviews page loaded")
+
+        # Select date range and download JSON
+        if not wait_and_click(driver, ".ant-calendar-range-picker-input:nth-child(3)"):
+            raise Exception("Failed to open date range picker")
+        if not wait_and_click(driver, ".ant-tag:nth-child(3)"):
+            raise Exception("Failed to select date range")
+        if not wait_and_click(driver, ".download-link path"):
+            raise Exception("Failed to click download link")
+        if not wait_and_click(driver, ".ant-btn-primary"):
+            raise Exception("Failed to confirm download")
+        
+        logger.info("Initiated JSON download")
+
+        # Wait for download to complete
+        time.sleep(10)
+        logger.info("Waited for download to complete")
+
+        # Check download directory
+        logger.info(f"Checking contents of download directory: {download_dir}")
+        files = os.listdir(download_dir)
+        logger.info(f"Files in download directory: {files}")
+        json_files = [f for f in files if f.endswith('.json')]
+        
+        if json_files:
+            old_file = os.path.join(download_dir, json_files[0])
+            new_file = os.path.join(download_dir, "localclarity_data.json")
+            os.rename(old_file, new_file)
+            logger.info(f"Renamed downloaded file from {json_files[0]} to localclarity_data.json")
+        else:
+            logger.error("No JSON file found in the download directory")
+            raise Exception("Download failed: No JSON file found")
 
         logger.info("Scraping and download process completed")
 
