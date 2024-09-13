@@ -1,5 +1,4 @@
----
-name: Run Scraper
+name: Run Scraper and Email Results
 on:
   push:
     branches:
@@ -16,7 +15,7 @@ on:
   schedule:
     - cron: '0 6 * * 5'  # Runs at 06:00 UTC every Friday
 jobs:
-  run-scraper:
+  run-scraper-and-email:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -41,11 +40,21 @@ jobs:
           LC_USERNAME: ${{ secrets.LC_USERNAME }}
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
         run: python scrapy.py
+      - name: Send email with attachment
+        env:
+          TO_EMAIL: ${{ secrets.TO_EMAIL }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        run: |
+          python send_email.py
       - name: Upload downloaded files
         uses: actions/upload-artifact@v3
         with:
           name: downloaded-files
-          path: /github/workspace/downloads
+          path: /github/workspace/downloads/*.json
       - name: Log manual trigger reason
         if: github.event_name == 'workflow_dispatch'
         run: echo "Workflow was manually triggered. Reason - ${{
