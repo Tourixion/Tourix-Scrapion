@@ -47,7 +47,7 @@ def send_email(subject, body, to_email, from_email, smtp_server, smtp_port, smtp
 
 if __name__ == "__main__":
     subject = "LocalClarity - Stavros - Review Download Link"
-    body = "Please find attached the latest JSON file from LocalClarity."
+    body = "Please find attached the latest CSV file from LocalClarity."
     to_email = os.environ['TO_EMAIL']
     from_email = os.environ['FROM_EMAIL']
     smtp_server = os.environ['SMTP_SERVER']
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     smtp_password = os.environ['SMTP_PASSWORD']
     
     download_dir = os.path.join(os.getcwd(), "downloads")
-    attachment_path = os.path.join(download_dir, "localclarity_data.json")
+    attachment_path = os.path.join(download_dir, "localclarity_data.csv")
 
     # List contents of the download directory
     logger.info(f"Contents of {download_dir}:")
