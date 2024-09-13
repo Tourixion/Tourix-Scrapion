@@ -19,9 +19,9 @@ jobs:
   run-scraper:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: 3.x
       - name: Install dependencies
@@ -42,7 +42,7 @@ jobs:
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
         run: python scrapy.py
       - name: Upload downloaded files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: downloaded-files
           path: /github/workspace/downloads
