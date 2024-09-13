@@ -10,7 +10,9 @@ Checklist of Possible likely problems
 2) We stopped paying for local clarity (Tbh Skill Issue)
 3) Someone deleted the files (I am planning to add backups for the other aspects of the code here (If I remember to do so(I did, this almost certainly an older version but it has all the basic structure you can probably figure it out)))
 4) The libraries we use have fully deprecated and everything is broken (Legacy skill issue)
+5) Bugs : I have suffered and so will you!
+6) Some change in the way the wesbsite works: I suffered tooooooooooooooooooooooooooooooooo
 
 What can you do?
 Scream!
-Tell everyone hi from from the Past tell them Ai OG (They will have no idea what this means, but if you are here you probably know what on OG is forcing you to explain this term, except if it is very very far in the future)
+Tell everyone hi from from the Past tell them Ai OG (They will have no idea what this means, but if you are here you probably know what an OG is forcing you to explain this term, except if it is very very far in the future)
