@@ -39,6 +39,10 @@ def login_and_scrape(url, email, password):
     firefox_options.set_preference("browser.download.manager.showWhenStarting", False)
     firefox_options.set_preference("browser.download.dir", download_dir)
     firefox_options.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")
+    firefox_options.set_preference("browser.download.manager.showWhenStarting", False)
+    firefox_options.set_preference("browser.download.manager.closeWhenDone", True)
+    firefox_options.set_preference("browser.download.manager.focusWhenStarting", False)
+    firefox_options.set_preference("browser.download.useDownloadDir", True)
     
     service = FirefoxService(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=firefox_options)
@@ -91,8 +95,18 @@ def login_and_scrape(url, email, password):
         logger.info("Initiated CSV download")
 
         # Wait for download to complete
-        time.sleep(10)
-        logger.info("Waited for download to complete")
+        download_wait_time = 30  # Increased wait time to 30 seconds
+        for i in range(download_wait_time):
+            time.sleep(1)
+            files = os.listdir(download_dir)
+            csv_files = [f for f in files if f.endswith('.csv')]
+            if csv_files:
+                logger.info(f"CSV file found after {i+1} seconds")
+                break
+            if i % 5 == 0:
+                logger.info(f"Waiting for download... {i+1} seconds elapsed")
+        else:
+            logger.error(f"No CSV file found after waiting for {download_wait_time} seconds")
 
         # Check download directory
         logger.info(f"Checking contents of download directory: {download_dir}")
