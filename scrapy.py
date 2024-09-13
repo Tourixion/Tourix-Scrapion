@@ -1,6 +1,8 @@
 import os
 import logging
 import time
+import csv
+import json
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -26,6 +28,19 @@ def wait_and_click(driver, selector, by=By.CSS_SELECTOR, timeout=10):
     except Exception as e:
         logger.error(f"Failed to click element {selector}: {str(e)}")
         return False
+
+def csv_to_json(csv_file_path, json_file_path):
+    data = []
+    with open(csv_file_path, 'r', encoding='utf-8') as csvfile:
+        csvreader = csv.DictReader(csvfile)
+        for row in csvreader:
+            data.append(row)
+    
+    with open(json_file_path, 'w', encoding='utf-8') as jsonfile:
+        json.dump(data, jsonfile, ensure_ascii=False, indent=4)
+    
+    logger.info(f"Converted CSV to JSON: {json_file_path}")
+
 def login_and_scrape(url, email, password):
     logger.info(f"Starting scraper for URL: {url}")
     
@@ -37,7 +52,7 @@ def login_and_scrape(url, email, password):
     firefox_options.set_preference("browser.download.folderList", 2)
     firefox_options.set_preference("browser.download.manager.showWhenStarting", False)
     firefox_options.set_preference("browser.download.dir", download_dir)
-    firefox_options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/json")
+    firefox_options.set_preference("browser.helperApps.neverAsk.saveToDisk", "text/csv")
     
     service = FirefoxService(GeckoDriverManager().install())
     driver = webdriver.Firefox(service=service, options=firefox_options)
@@ -72,30 +87,12 @@ def login_and_scrape(url, email, password):
         except TimeoutException:
             logger.info("No authorization needed")
 
-        # Wait for the main dashboard to load
-        WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.CSS_SELECTOR, "body")))
-        logger.info("Main dashboard loaded")
+        # Navigate to reviews
+        if not wait_and_click(driver, ".fa-comment-o"):
+            raise Exception("Failed to navigate to reviews")
+        logger.info("Navigated to reviews")
 
-        # Try to find the reviews icon multiple times
-        max_attempts = 3
-        for attempt in range(max_attempts):
-            try:
-                reviews_icon = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".fa-comment-o")))
-                reviews_icon.click()
-                logger.info("Clicked reviews icon")
-                break
-            except TimeoutException:
-                if attempt < max_attempts - 1:
-                    logger.warning(f"Attempt {attempt + 1} to find reviews icon failed. Retrying...")
-                    time.sleep(5)
-                else:
-                    raise Exception("Failed to navigate to reviews after multiple attempts")
-
-        # Wait for reviews page to load
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, ".reviews-header")))
-        logger.info("Reviews page loaded")
-
-        # Select date range and download JSON
+        # Select date range and download CSV
         if not wait_and_click(driver, ".ant-calendar-range-picker-input:nth-child(3)"):
             raise Exception("Failed to open date range picker")
         if not wait_and_click(driver, ".ant-tag:nth-child(3)"):
@@ -105,7 +102,7 @@ def login_and_scrape(url, email, password):
         if not wait_and_click(driver, ".ant-btn-primary"):
             raise Exception("Failed to confirm download")
         
-        logger.info("Initiated JSON download")
+        logger.info("Initiated CSV download")
 
         # Wait for download to complete
         time.sleep(10)
@@ -115,16 +112,16 @@ def login_and_scrape(url, email, password):
         logger.info(f"Checking contents of download directory: {download_dir}")
         files = os.listdir(download_dir)
         logger.info(f"Files in download directory: {files}")
-        json_files = [f for f in files if f.endswith('.json')]
+        csv_files = [f for f in files if f.endswith('.csv')]
         
-        if json_files:
-            old_file = os.path.join(download_dir, json_files[0])
-            new_file = os.path.join(download_dir, "localclarity_data.json")
-            os.rename(old_file, new_file)
-            logger.info(f"Renamed downloaded file from {json_files[0]} to localclarity_data.json")
+        if csv_files:
+            csv_file = os.path.join(download_dir, csv_files[0])
+            json_file = os.path.join(download_dir, "localclarity_data.json")
+            csv_to_json(csv_file, json_file)
+            logger.info(f"Converted {csv_files[0]} to localclarity_data.json")
         else:
-            logger.error("No JSON file found in the download directory")
-            raise Exception("Download failed: No JSON file found")
+            logger.error("No CSV file found in the download directory")
+            raise Exception("Download failed: No CSV file found")
 
         logger.info("Scraping and download process completed")
 
