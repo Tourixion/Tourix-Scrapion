@@ -35,15 +35,13 @@ jobs:
         run: |
           firefox --version
           geckodriver --version
-      - name: Create downloads directory
-        run: mkdir -p /github/workspace/downloads
       - name: Run scraper script
         env:
           LC_USERNAME: ${{ secrets.LC_USERNAME }}
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
         run: python scrapy.py
       - name: List downloads directory
-        run: ls -la /github/workspace/downloads
+        run: ls -la downloads
       - name: Send email with attachment
         env:
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
@@ -52,14 +50,15 @@ jobs:
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-        run: |
-          python send_email.py
+        run: python send_email.py
       - name: Upload downloaded files
         uses: actions/upload-artifact@v3
         with:
           name: downloaded-files
-          path: /github/workspace/downloads/*.json
+          path: downloads/*.json
       - name: Log manual trigger reason
         if: github.event_name == 'workflow_dispatch'
+        run: echo "Workflow was manually triggered. Reason - ${{
+          github.event.inputs.reason || 'No reasch'
         run: echo "Workflow was manually triggered. Reason - ${{
           github.event.inputs.reason || 'No reason provided' }}"
