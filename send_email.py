@@ -54,15 +54,19 @@ if __name__ == "__main__":
     smtp_port = int(os.environ['SMTP_PORT'])
     smtp_username = os.environ['SMTP_USERNAME']
     smtp_password = os.environ['SMTP_PASSWORD']
-    attachment_path = "/github/workspace/downloads/localclarity_data.json"
+    
+    download_dir = os.path.join(os.getcwd(), "downloads")
+    attachment_path = os.path.join(download_dir, "localclarity_data.json")
 
     # List contents of the download directory
-    download_dir = "/github/workspace/downloads"
     logger.info(f"Contents of {download_dir}:")
     if os.path.exists(download_dir):
         for filename in os.listdir(download_dir):
             logger.info(f"- {filename}")
     else:
+        logger.error(f"Download directory does not exist: {download_dir}")
+
+    send_email(subject, body, to_email, from_email, smtp_server, smtp_port, smtp_username, smtp_password, attachment_path)
         logger.error(f"Download directory does not exist: {download_dir}")
 
     send_email(subject, body, to_email, from_email, smtp_server, smtp_port, smtp_username, smtp_password, attachment_path)
