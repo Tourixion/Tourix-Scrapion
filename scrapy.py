@@ -120,4 +120,3 @@ if __name__ == "__main__":
         exit(1)
     password = os.environ.get('LC_PASSWORD')
     login_and_scrape(login_url, username, password)
-
