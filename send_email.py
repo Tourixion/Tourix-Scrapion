@@ -27,8 +27,7 @@ def send_email(subject, body, to_email, from_email, smtp_server, smtp_port, smtp
 
     text = msg.as_string()
 
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls()
+    with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
         server.login(smtp_username, smtp_password)
         server.sendmail(from_email, to_email, text)
 
