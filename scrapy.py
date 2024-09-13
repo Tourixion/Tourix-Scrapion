@@ -65,14 +65,19 @@ def login_and_scrape(url, email, password):
         logger.info(f"Page changed after login. New URL: {driver.current_url}")
 
         # Navigate to reviews
-        wait_and_click(driver, ".fa-comment-o")
+        if not wait_and_click(driver, ".fa-comment-o"):
+            raise Exception("Failed to navigate to reviews")
         logger.info("Navigated to reviews")
 
         # Select date range and download JSON
-        wait_and_click(driver, ".ant-calendar-range-picker-input:nth-child(3)")
-        wait_and_click(driver, ".ant-tag:nth-child(3)")
-        wait_and_click(driver, ".download-link path")
-        wait_and_click(driver, ".ant-btn-primary")
+        if not wait_and_click(driver, ".ant-calendar-range-picker-input:nth-child(3)"):
+            raise Exception("Failed to open date range picker")
+        if not wait_and_click(driver, ".ant-tag:nth-child(3)"):
+            raise Exception("Failed to select date range")
+        if not wait_and_click(driver, ".download-link path"):
+            raise Exception("Failed to click download link")
+        if not wait_and_click(driver, ".ant-btn-primary"):
+            raise Exception("Failed to confirm download")
         
         logger.info("Initiated JSON download")
 
@@ -84,20 +89,22 @@ def login_and_scrape(url, email, password):
         logger.info(f"Checking contents of download directory: {download_dir}")
         files = os.listdir(download_dir)
         logger.info(f"Files in download directory: {files}")
-        for filename in files:
-            if filename.endswith(".json"):
-                old_file = os.path.join(download_dir, filename)
-                new_file = os.path.join(download_dir, "localclarity_data.json")
-                os.rename(old_file, new_file)
-                logger.info(f"Renamed downloaded file from {filename} to localclarity_data.json")
-                break
+        json_files = [f for f in files if f.endswith('.json')]
+        
+        if json_files:
+            old_file = os.path.join(download_dir, json_files[0])
+            new_file = os.path.join(download_dir, "localclarity_data.json")
+            os.rename(old_file, new_file)
+            logger.info(f"Renamed downloaded file from {json_files[0]} to localclarity_data.json")
         else:
             logger.error("No JSON file found in the download directory")
+            raise Exception("Download failed: No JSON file found")
 
         logger.info("Scraping and download process completed")
 
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
+        raise
     finally:
         driver.quit()
         logger.info("Scraper finished, browser closed")
@@ -105,6 +112,12 @@ def login_and_scrape(url, email, password):
 if __name__ == "__main__":
     login_url = "https://app.localclarity.com/login"
     username = os.environ.get('LC_USERNAME')
+    password = os.environ.get('LC_PASSWORD')
+    try:
+        login_and_scrape(login_url, username, password)
+    except Exception as e:
+        logger.error(f"Scraping failed: {str(e)}")
+        exit(1)
     password = os.environ.get('LC_PASSWORD')
     login_and_scrape(login_url, username, password)
 
