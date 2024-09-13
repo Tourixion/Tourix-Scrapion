@@ -9,9 +9,9 @@ jobs:
   scrape:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
     - name: Set up Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v2
       with:
         python-version: '3.x'
     - name: Install dependencies
@@ -28,7 +28,7 @@ jobs:
         LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
       run: python your_script_name.py
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: downloaded-file
         path: /path/to/download/directory/*  # Adjust this path
