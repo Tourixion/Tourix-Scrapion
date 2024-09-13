@@ -35,11 +35,15 @@ jobs:
         run: |
           firefox --version
           geckodriver --version
+      - name: Create downloads directory
+        run: mkdir -p /github/workspace/downloads
       - name: Run scraper script
         env:
           LC_USERNAME: ${{ secrets.LC_USERNAME }}
           LC_PASSWORD: ${{ secrets.LC_PASSWORD }}
         run: python scrapy.py
+      - name: List downloads directory
+        run: ls -la /github/workspace/downloads
       - name: Send email with attachment
         env:
           TO_EMAIL: ${{ secrets.TO_EMAIL }}
