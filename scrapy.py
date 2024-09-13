@@ -1,7 +1,6 @@
 import os
 import logging
 import time
-import json
 from selenium import webdriver
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
@@ -34,9 +33,11 @@ def login_and_scrape(url, email, password):
     firefox_options = FirefoxOptions()
     firefox_options.add_argument("--headless")
     
+    download_dir = os.path.join(os.getcwd(), "downloads")
+    logger.info(f"Setting download directory to: {download_dir}")
     firefox_options.set_preference("browser.download.folderList", 2)
     firefox_options.set_preference("browser.download.manager.showWhenStarting", False)
-    firefox_options.set_preference("browser.download.dir", "/github/workspace/downloads")
+    firefox_options.set_preference("browser.download.dir", download_dir)
     firefox_options.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/json")
     
     service = FirefoxService(GeckoDriverManager().install())
@@ -79,15 +80,19 @@ def login_and_scrape(url, email, password):
         time.sleep(10)
         logger.info("Waited for download to complete")
 
-        # Rename the downloaded file
-        download_dir = "/github/workspace/downloads"
-        for filename in os.listdir(download_dir):
+        # Check download directory
+        logger.info(f"Checking contents of download directory: {download_dir}")
+        files = os.listdir(download_dir)
+        logger.info(f"Files in download directory: {files}")
+        for filename in files:
             if filename.endswith(".json"):
                 old_file = os.path.join(download_dir, filename)
                 new_file = os.path.join(download_dir, "localclarity_data.json")
                 os.rename(old_file, new_file)
-                logger.info(f"Renamed downloaded file to localclarity_data.json")
+                logger.info(f"Renamed downloaded file from {filename} to localclarity_data.json")
                 break
+        else:
+            logger.error("No JSON file found in the download directory")
 
         logger.info("Scraping and download process completed")
 
